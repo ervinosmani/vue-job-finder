@@ -14,13 +14,14 @@ export const useJobStore = defineStore('jobStore', () => {
     loading.value = true;
     try {
       const response = await axios.get('https://jsonplaceholder.typicode.com/posts');
-      jobs.value = response.data.map((job: any, index: number) => ({
-        id: job.id,
-        title: job.title,
-        body: job.body,
-        company: `Company ${index % 5 + 1}`,  // Simulon kompani të ndryshme
-        location: index % 2 === 0 ? 'Remote' : 'On-site',  // Alternon mes Remote dhe On-site
-        salary: Math.floor(Math.random() * 100000) + 40000,  // Gjeneron rrogë midis $40,000 - $140,000
+      
+      // Shtojmë një link aplikimi për çdo punë
+      jobs.value = response.data.map(job => ({
+        ...job,
+        company: `Company ${job.id}`, // Emri i kompanisë
+        location: job.id % 2 === 0 ? 'Remote' : 'On-site', // Vendndodhja
+        salary: Math.floor(Math.random() * 80000) + 40000, // Paga (random)
+        applyLink: `https://www.linkedin.com/jobs/view/${job.id}` // 📌 Link i imagjinuar për aplikim
       }));
     } catch (err) {
       error.value = 'Failed to load jobs';
@@ -28,6 +29,7 @@ export const useJobStore = defineStore('jobStore', () => {
       loading.value = false;
     }
   };
+  
   
 
   const saveJob = (job: any) => {

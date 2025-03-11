@@ -8,22 +8,41 @@ const router = useRouter();
 const jobStore = useJobStore();
 
 const job = ref<any>(null);
+const showRedirectMessage = ref(false); // 📌 Për mesazhin "Redirecting to LinkedIn..."
 
 onMounted(() => {
   const jobId = Number(route.params.id);
   job.value = jobStore.jobs.find(j => j.id === jobId);
 });
 
-// 📌 Kthen përdoruesin prapa dhe rikthen scroll-in në vendin e mëparshëm
-const goBack = () => {
-  router.push('/jobs').then(() => {
+// 📌 FUNKSIONI: Apliko për punë
+const applyForJob = () => {
+  if (job.value?.applyLink) {
+    showRedirectMessage.value = true; // Shfaq mesazhin
+
+    // Hap LinkedIn në një tab të ri pas 1 sekonde
     setTimeout(() => {
-      const savedScroll = sessionStorage.getItem('scrollPosition');
-      if (savedScroll) {
-        window.scrollTo(0, parseInt(savedScroll)); // Rikthen pozicionin e mëparshëm të scroll-it
-      }
-    }, 100);
-  });
+      window.open(job.value.applyLink, '_blank');
+    }, 1000);
+
+    // Fshih mesazhin pas 3 sekondash
+    setTimeout(() => {
+      showRedirectMessage.value = false;
+    }, 3000);
+  } else {
+    alert("This job does not have an application link.");
+  }
+};
+
+// 📌 FUNKSIONI: Kthehu pas te Jobs pa humbur scroll-in
+const goBack = () => {
+  const savedScroll = sessionStorage.getItem('scrollPosition');
+  router.push('/jobs');
+  setTimeout(() => {
+    if (savedScroll) {
+      window.scrollTo(0, parseInt(savedScroll));
+    }
+  }, 100);
 };
 </script>
 
@@ -36,10 +55,19 @@ const goBack = () => {
     <p class="text-gray-400"><strong>Location:</strong> {{ job.location }}</p>
     <p class="text-gray-400"><strong>Salary:</strong> ${{ job.salary.toLocaleString() }}</p>
 
-    <div class="mt-6 flex justify-center space-x-4">
-      <button class="px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition">
+    <div class="mt-6 flex flex-col items-center space-y-4">
+      <button 
+        @click="applyForJob"
+        class="px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition"
+      >
         Apply Now
       </button>
+
+      <!-- 📌 Mesazhi që shfaqet për pak sekonda pas klikimit -->
+      <p v-if="showRedirectMessage" class="text-yellow-400 text-lg font-semibold">
+        🔄 Redirecting to LinkedIn...
+      </p>
+
       <button 
         @click="goBack"
         class="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"

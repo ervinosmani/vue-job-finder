@@ -37,8 +37,8 @@ const filteredJobs = computed(() => {
     const matchesJobType = selectedJobType.value ? job.location === selectedJobType.value : true;
     const matchesSalary =
       selectedSalaryRange.value === 'low' ? job.salary < 50000 :
-      selectedSalaryRange.value === 'medium' ? job.salary >= 50000 && job.salary <= 100000 :
-      selectedSalaryRange.value === 'high' ? job.salary > 100000 : true;
+        selectedSalaryRange.value === 'medium' ? job.salary >= 50000 && job.salary <= 100000 :
+          selectedSalaryRange.value === 'high' ? job.salary > 100000 : true;
 
     return matchesSearch && matchesCompany && matchesJobType && matchesSalary;
   });
@@ -67,16 +67,9 @@ const isSaved = (id: number) => {
 
     <!-- Filtrat -->
     <div class="flex flex-wrap space-x-4 mb-4 justify-center">
-      <input 
-        v-model="searchQuery" 
-        type="text" 
-        placeholder="Search jobs..." 
-        class="p-2 rounded border bg-gray-800 text-white"
-      />
-      <button 
-        @click="clearSearch"
-        class="ml-2 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
-      >
+      <input v-model="searchQuery" type="text" placeholder="Search jobs..."
+        class="p-2 rounded border bg-gray-800 text-white" />
+      <button @click="clearSearch" class="ml-2 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition">
         Clear
       </button>
 
@@ -108,18 +101,21 @@ const isSaved = (id: number) => {
 
     <!-- Lista e punëve -->
     <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <div v-for="job in filteredJobs" :key="job.id" 
+      <div v-for="job in filteredJobs" :key="job.id"
         class="bg-gray-800 p-6 rounded-lg shadow-lg text-left h-full flex flex-col justify-between min-h-[350px] border"
         :class="{ 'border-green-500': isSaved(job.id) }">
-        
+
         <h2 class="text-xl font-bold">{{ job.title }}</h2>
         <p class="text-gray-400 mt-2 flex-1">{{ job.body }}</p>
         <p class="text-gray-400"><strong>Location:</strong> {{ job.location }}</p>
 
         <div class="pt-4 flex space-x-2">
-          <button @click="saveJob(job)" class="px-4 py-2 rounded-lg transition bg-green-500 hover:bg-green-600 text-white">
-            Save Job
+          <button @click="saveJob(job)" class="px-4 py-2 rounded-lg transition"
+            :class="isSaved(job.id) ? 'bg-gray-500 text-white' : 'bg-green-500 hover:bg-green-600 text-white'"
+            :disabled="isSaved(job.id)">
+            {{ isSaved(job.id) ? 'Saved' : 'Save Job' }}
           </button>
+
           <router-link :to="`/jobs/${job.id}`" @click="saveScrollPosition">
             <button class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition">
               View Details
