@@ -2,9 +2,10 @@ import { createRouter, createWebHistory } from 'vue-router';
 import Home from '@/pages/Home.vue';
 import Jobs from '@/pages/Jobs.vue';
 import SavedJobs from '@/pages/SavedJobs.vue';
+import JobDetails from '@/pages/JobDetails.vue';
 
 const router = createRouter({
-  history: createWebHistory(), // Nuk ka nevojë për import.meta.env.BASE_URL
+  history: createWebHistory(), 
   routes: [
     {
       path: '/',
@@ -20,6 +21,11 @@ const router = createRouter({
       path: '/saved',
       name: 'saved',
       component: SavedJobs,
+    },
+    {
+      path: '/jobs/:id', 
+      name: 'job-details', 
+      component: JobDetails
     },
   ],
 });
