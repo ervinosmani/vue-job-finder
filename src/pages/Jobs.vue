@@ -1,12 +1,15 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, nextTick } from 'vue';
 import { useJobStore } from '@/stores/jobStore';
+import { watch } from 'vue';
 
 const jobStore = useJobStore();
 const searchQuery = ref('');
 const selectedCompany = ref('');
 const selectedSalaryRange = ref('');
 const selectedJobType = ref('');
+const currentPage = ref(1);
+const jobsPerPage = 6;
 
 // 📌 Rikthen pozicionin e scroll-it kur kthehemi te Jobs.vue
 onMounted(() => {
@@ -29,35 +32,68 @@ const clearSearch = () => {
   searchQuery.value = '';
 };
 
-// Filtrim i punëve bazuar në input
+// 📌 Filtrim i punëve
 const filteredJobs = computed(() => {
   return jobStore.jobs.filter(job => {
     const matchesSearch = job.title.toLowerCase().includes(searchQuery.value.toLowerCase());
-    const matchesCompany = selectedCompany.value ? job.company === selectedCompany.value : true;
     const matchesJobType = selectedJobType.value ? job.location === selectedJobType.value : true;
     const matchesSalary =
       selectedSalaryRange.value === 'low' ? job.salary < 50000 :
         selectedSalaryRange.value === 'medium' ? job.salary >= 50000 && job.salary <= 100000 :
           selectedSalaryRange.value === 'high' ? job.salary > 100000 : true;
 
-    return matchesSearch && matchesCompany && matchesJobType && matchesSalary;
+    return matchesSearch && matchesJobType && matchesSalary;
   });
 });
 
-// Merr kompanitë unike për filtrimin
-const uniqueCompanies = computed(() => {
-  return [...new Set(jobStore.jobs.map(job => job.company))];
+// 📌 Pagination
+const paginatedJobs = computed(() => {
+  const start = (currentPage.value - 1) * jobsPerPage;
+  const end = start + jobsPerPage;
+  return filteredJobs.value.slice(start, end);
 });
 
-// Funksion për të ruajtur një punë
+const totalPages = computed(() => Math.ceil(filteredJobs.value.length / jobsPerPage));
+
+const nextPage = () => {
+  if (currentPage.value < totalPages.value) {
+    currentPage.value++;
+    scrollToTop(); // 📌 Kthehet lart kur ndërrohet faqja
+  }
+};
+
+const prevPage = () => {
+  if (currentPage.value > 1) {
+    currentPage.value--;
+    scrollToTop(); // 📌 Kthehet lart kur ndërrohet faqja
+  }
+};
+
+// 📌 Funksion që e kthen faqen lart
+const scrollToTop = () => {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+};
+
+// 📌 Merr kompanitë unike për filtrimin
+const uniqueCompanies = computed(() => {
+  return Array.from(new Set(jobStore.jobs.map(job => job.company)));
+});
+
+// 📌 Funksion për të ruajtur një punë
 const saveJob = (job: any) => {
   jobStore.saveJob(job);
 };
 
-// Kontrollon nëse një punë është ruajtur
+// 📌 Kontrollon nëse një punë është ruajtur
 const isSaved = (id: number) => {
   return jobStore.savedJobs.some(job => job.id === id);
 };
+
+watch([searchQuery, selectedSalaryRange, selectedJobType], () => {
+  currentPage.value = 1; // Rikthehet në faqen e parë
+  window.scrollTo(0, 0); // Kthen faqen lart
+});
+
 </script>
 
 <template>
@@ -73,13 +109,6 @@ const isSaved = (id: number) => {
         Clear
       </button>
 
-      <select v-model="selectedCompany" class="p-2 rounded border bg-gray-800 text-white">
-        <option value="">All Companies</option>
-        <option v-for="company in uniqueCompanies" :key="company" :value="company">
-          {{ company }}
-        </option>
-      </select>
-
       <select v-model="selectedSalaryRange" class="p-2 rounded border bg-gray-800 text-white">
         <option value="">All Salaries</option>
         <option value="low">Below $50,000</option>
@@ -94,15 +123,22 @@ const isSaved = (id: number) => {
       </select>
     </div>
 
-    <!-- Mesazhet e gjendjes -->
-    <div v-if="jobStore.loading" class="text-blue-400">Loading jobs...</div>
+    <!-- Loading Spinner -->
+    <div v-if="jobStore.loading" class="flex justify-center">
+      <svg class="animate-spin h-10 w-10 text-blue-400" viewBox="0 0 24 24" fill="none"
+        xmlns="http://www.w3.org/2000/svg">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+      </svg>
+    </div>
+
     <div v-else-if="jobStore.error" class="text-red-400">{{ jobStore.error }}</div>
     <div v-else-if="filteredJobs.length === 0" class="text-gray-400">No jobs found.</div>
 
     <!-- Lista e punëve -->
     <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <div v-for="job in filteredJobs" :key="job.id"
-        class="bg-gray-800 p-6 rounded-lg shadow-lg text-left h-full flex flex-col justify-between min-h-[350px] border"
+      <div v-for="job in paginatedJobs" :key="job.id"
+        class="bg-gray-800 p-6 rounded-lg shadow-lg text-left h-full flex flex-col justify-between min-h-[350px] border transition-transform hover:scale-105 hover:shadow-xl"
         :class="{ 'border-green-500': isSaved(job.id) }">
 
         <h2 class="text-xl font-bold">{{ job.title }}</h2>
@@ -124,5 +160,21 @@ const isSaved = (id: number) => {
         </div>
       </div>
     </div>
+
+    <!-- Pagination -->
+    <div v-if="totalPages > 1" class="flex justify-center mt-6 space-x-4">
+      <button @click="prevPage" :disabled="currentPage === 1"
+        class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition">
+        ← Previous
+      </button>
+
+      <span class="text-white px-4 py-2">Page {{ currentPage }} of {{ totalPages }}</span>
+
+      <button @click="nextPage" :disabled="currentPage === totalPages"
+        class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition">
+        Next →
+      </button>
+    </div>
+
   </div>
 </template>

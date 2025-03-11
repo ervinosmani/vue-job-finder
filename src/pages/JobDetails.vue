@@ -36,12 +36,9 @@ const applyForJob = () => {
 
 // 📌 FUNKSIONI: Kthehu pas te Jobs pa humbur scroll-in
 const goBack = () => {
-  const savedScroll = sessionStorage.getItem('scrollPosition');
-  router.push('/jobs');
+  router.push('/jobs'); // Kthehet tek Jobs
   setTimeout(() => {
-    if (savedScroll) {
-      window.scrollTo(0, parseInt(savedScroll));
-    }
+    window.scrollTo({ top: 0, behavior: 'smooth' }); // Kthen faqen në fillim
   }, 100);
 };
 </script>
@@ -56,10 +53,7 @@ const goBack = () => {
     <p class="text-gray-400"><strong>Salary:</strong> ${{ job.salary.toLocaleString() }}</p>
 
     <div class="mt-6 flex flex-col items-center space-y-4">
-      <button 
-        @click="applyForJob"
-        class="px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition"
-      >
+      <button @click="applyForJob" class="px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition">
         Apply Now
       </button>
 
@@ -68,14 +62,11 @@ const goBack = () => {
         🔄 Redirecting to LinkedIn...
       </p>
 
-      <button 
-        @click="goBack"
-        class="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
-      >
+      <button @click="goBack" class="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition">
         ← Back to Jobs
       </button>
     </div>
   </div>
-  
+
   <div v-else class="text-center text-gray-400">Loading job details...</div>
 </template>
