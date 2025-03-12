@@ -3,13 +3,13 @@ import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
 import { ref } from "vue";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCt-deJVmDsVjcpqEeTsmwuGDKhVFkFREM",
-  authDomain: "vue-job-finder.firebaseapp.com",
-  projectId: "vue-job-finder",
-  storageBucket: "vue-job-finder.firebasestorage.app",
-  messagingSenderId: "589648708727",
-  appId: "1:589648708727:web:188693d72947ee89373272",
-  measurementId: "G-1KNMR19357"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
 };
 
 const app = initializeApp(firebaseConfig);
