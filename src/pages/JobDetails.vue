@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useJobStore } from '@/stores/jobStore';
+import axios from 'axios';
 
 const route = useRoute();
 const router = useRouter();
@@ -10,9 +11,22 @@ const jobStore = useJobStore();
 const job = ref<any>(null);
 const showRedirectMessage = ref(false); // 📌 Për mesazhin "Redirecting to LinkedIn..."
 
-onMounted(() => {
+onMounted(async () => {
   const jobId = Number(route.params.id);
+  
+  // **Përpiqemi ta gjejmë punën nga store**
   job.value = jobStore.jobs.find(j => j.id === jobId);
+
+  // **Nëse punët nuk janë ngarkuar ende, bëjmë një kërkesë tek backend**
+  if (!job.value) {
+    try {
+      const response = await axios.get(`http://localhost:3000/jobs/${jobId}`);
+      job.value = response.data;
+    } catch (err) {
+      console.error("Job not found:", err);
+      router.push('/jobs'); // Nëse puna nuk gjendet, ridrejtohet te Jobs
+    }
+  }
 });
 
 // 📌 FUNKSIONI: Apliko për punë
@@ -50,7 +64,7 @@ const goBack = () => {
 
     <p class="text-gray-400"><strong>Company:</strong> {{ job.company }}</p>
     <p class="text-gray-400"><strong>Location:</strong> {{ job.location }}</p>
-    <p class="text-gray-400"><strong>Salary:</strong> ${{ job.salary.toLocaleString() }}</p>
+    <p class="text-gray-400"><strong>Salary:</strong> {{ job.salary }}</p>
 
     <div class="mt-6 flex flex-col items-center space-y-4">
       <button @click="applyForJob" class="px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition">

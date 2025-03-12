@@ -14,12 +14,15 @@ const removeJob = (id: number) => {
   }
 };
 
-// 📌 Funksion për të fshirë të gjitha punët e ruajtura
+// 📌 Funksion për të fshirë të gjitha punët e ruajtura dhe për të ridrejtuar përdoruesin
 const removeAllJobs = () => {
   const confirmDeleteAll = confirm("Are you sure you want to remove all saved jobs?");
   if (confirmDeleteAll) {
     jobStore.savedJobs = [];
     localStorage.removeItem('savedJobs');
+    
+    // 📌 Ridrejtohet te Jobs pas fshirjes së të gjitha punëve
+    router.push('/jobs');
   }
 };
 
@@ -51,15 +54,22 @@ watch(() => jobStore.savedJobs.length, (newLength) => {
         class="bg-gray-800 p-6 rounded-lg shadow-lg text-left h-full flex flex-col justify-between min-h-[350px] border">
 
         <h2 class="text-xl font-bold">{{ job.title }}</h2>
-        <p class="text-gray-400 mt-2 flex-1">{{ job.body }}</p>
+        <p class="text-gray-400"><strong>Company:</strong> {{ job.company }}</p>
         <p class="text-gray-400"><strong>Location:</strong> {{ job.location }}</p>
+        <p class="text-gray-400"><strong>Salary:</strong> {{ job.salary }}</p>
+
+        <!-- 📌 Përshkrimi i punës -->
+        <p class="text-gray-300 mt-2">
+          {{ job.description.length > 100 ? job.description.slice(0, 100) + '...' : job.description }}
+        </p>
 
         <div class="pt-4 flex space-x-2">
-          <button @click="removeJob(job.id)" class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition">
+          <button @click="removeJob(job.id)"
+            class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition">
             Remove
           </button>
 
-          <router-link :to="`/jobs/${job.id}`" @click="setPreviousPage">
+          <router-link :to="`/jobs/${job.id}`">
             <button class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition">
               View Details
             </button>

@@ -2,14 +2,16 @@
 import { ref, computed, onMounted, nextTick } from 'vue';
 import { useJobStore } from '@/stores/jobStore';
 import { watch } from 'vue';
+import { user } from '@/firebase';
+import { useRouter } from 'vue-router';
 
 const jobStore = useJobStore();
 const searchQuery = ref('');
-const selectedCompany = ref('');
 const selectedSalaryRange = ref('');
 const selectedJobType = ref('');
 const currentPage = ref(1);
 const jobsPerPage = 6;
+const router = useRouter();
 
 // 📌 Rikthen pozicionin e scroll-it kur kthehemi te Jobs.vue
 onMounted(() => {
@@ -74,13 +76,12 @@ const scrollToTop = () => {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 };
 
-// 📌 Merr kompanitë unike për filtrimin
-const uniqueCompanies = computed(() => {
-  return Array.from(new Set(jobStore.jobs.map(job => job.company)));
-});
-
-// 📌 Funksion për të ruajtur një punë
-const saveJob = (job: any) => {
+// 📌 Funksioni për të ruajtur një punë
+const handleSave = (job: any) => {
+  if (!user.value) {
+    router.push('/login');
+    return;
+  }
   jobStore.saveJob(job);
 };
 
@@ -93,7 +94,6 @@ watch([searchQuery, selectedSalaryRange, selectedJobType], () => {
   currentPage.value = 1; // Rikthehet në faqen e parë
   window.scrollTo(0, 0); // Kthen faqen lart
 });
-
 </script>
 
 <template>
@@ -142,13 +142,20 @@ watch([searchQuery, selectedSalaryRange, selectedJobType], () => {
         :class="{ 'border-green-500': isSaved(job.id) }">
 
         <h2 class="text-xl font-bold">{{ job.title }}</h2>
-        <p class="text-gray-400 mt-2 flex-1">{{ job.body }}</p>
+        <p class="text-gray-400"><strong>Company:</strong> {{ job.company }}</p>
         <p class="text-gray-400"><strong>Location:</strong> {{ job.location }}</p>
+        <p class="text-gray-400"><strong>Salary:</strong> {{ job.salary }}</p>
 
-        <div class="pt-4 flex space-x-2">
-          <button @click="saveJob(job)" class="px-4 py-2 rounded-lg transition"
-            :class="isSaved(job.id) ? 'bg-gray-500 text-white' : 'bg-green-500 hover:bg-green-600 text-white'"
-            :disabled="isSaved(job.id)">
+        <!-- 📌 Përshkrimi i punës -->
+        <p class="text-gray-300 mt-2">
+          {{ job.description.length > 100 ? job.description.slice(0, 100) + '...' : job.description }}
+        </p>
+
+        <!-- Butonat -->
+        <div class="mt-4 flex space-x-2">
+          <button @click="handleSave(job)" class="px-4 py-2 rounded-lg transition bg-green-500 hover:bg-green-600 text-white"
+            :class="user ? 'bg-green-500 hover:bg-green-600 text-white' : 'bg-gray-500 text-gray-300 cursor-not-allowed'"
+            :disabled="!user">
             {{ isSaved(job.id) ? 'Saved' : 'Save Job' }}
           </button>
 
@@ -160,21 +167,5 @@ watch([searchQuery, selectedSalaryRange, selectedJobType], () => {
         </div>
       </div>
     </div>
-
-    <!-- Pagination -->
-    <div v-if="totalPages > 1" class="flex justify-center mt-6 space-x-4">
-      <button @click="prevPage" :disabled="currentPage === 1"
-        class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition">
-        ← Previous
-      </button>
-
-      <span class="text-white px-4 py-2">Page {{ currentPage }} of {{ totalPages }}</span>
-
-      <button @click="nextPage" :disabled="currentPage === totalPages"
-        class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition">
-        Next →
-      </button>
-    </div>
-
   </div>
 </template>
