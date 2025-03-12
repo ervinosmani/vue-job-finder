@@ -5,7 +5,6 @@ import Navbar from './components/Navbar.vue';
 <template>
   <div id="app" class="h-screen flex flex-col">
     <Navbar />
-    <router-view class="flex-grow" />
+    <router-view :key="$route.fullPath" class="flex-grow" />
   </div>
 </template>
-

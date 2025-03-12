@@ -79,6 +79,7 @@ const scrollToTop = () => {
 // 📌 Funksioni për të ruajtur një punë
 const handleSave = (job: any) => {
   if (!user.value) {
+    sessionStorage.setItem("redirectAfterLogin", "/jobs");
     router.push('/login');
     return;
   }
@@ -87,7 +88,7 @@ const handleSave = (job: any) => {
 
 // 📌 Kontrollon nëse një punë është ruajtur
 const isSaved = (id: number) => {
-  return jobStore.savedJobs.some(job => job.id === id);
+  return user.value ? jobStore.savedJobs.some(job => job.id === id) : false;
 };
 
 watch([searchQuery, selectedSalaryRange, selectedJobType], () => {
@@ -99,7 +100,7 @@ watch([searchQuery, selectedSalaryRange, selectedJobType], () => {
 <template>
   <div class="container mx-auto p-6 text-center">
     <h1 class="text-4xl font-bold text-gray-200 mb-6">Job Listings</h1>
-    <p class="text-gray-400 mb-8">Browse available job opportunities.</p>
+    <p v-if="user" class="text-green-400 mb-4">Welcome back, {{ user.email }}!</p>
 
     <!-- Filtrat -->
     <div class="flex flex-wrap space-x-4 mb-4 justify-center">
@@ -152,15 +153,17 @@ watch([searchQuery, selectedSalaryRange, selectedJobType], () => {
         </p>
 
         <!-- Butonat -->
-        <div class="mt-4 flex space-x-2">
-          <button @click="handleSave(job)" class="px-4 py-2 rounded-lg transition bg-green-500 hover:bg-green-600 text-white"
-            :class="user ? 'bg-green-500 hover:bg-green-600 text-white' : 'bg-gray-500 text-gray-300 cursor-not-allowed'"
-            :disabled="!user">
-            {{ isSaved(job.id) ? 'Saved' : 'Save Job' }}
+        <div class="mt-4 flex justify-between space-x-2">
+          <button @click="handleSave(job)" class="px-4 py-2 rounded-lg transition text-white w-full" :class="{
+            'bg-green-500 text-white': !user,
+            'bg-green-500 hover:bg-green-600 text-white': user && !isSaved(job.id),
+            'bg-gray-600 text-white': user && isSaved(job.id)
+          }">
+            {{ user && isSaved(job.id) ? 'Saved' : 'Save Job' }}
           </button>
 
-          <router-link :to="`/jobs/${job.id}`" @click="saveScrollPosition">
-            <button class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition">
+          <router-link :to="`/jobs/${job.id}`" @click="saveScrollPosition" class="w-full">
+            <button class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 w-full">
               View Details
             </button>
           </router-link>

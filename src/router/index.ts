@@ -19,17 +19,18 @@ const router = createRouter({
       component: Jobs,
     },
     {
-      path: '/saved',
-      name: 'saved',
+      path: '/saved-jobs',
+      name: 'saved-jobs',
       component: SavedJobs,
     },
     {
-      path: '/jobs/:id', 
-      name: 'job-details', 
+      path: '/jobs/:id',
+      name: 'job-details',
       component: JobDetails
     },
     {
       path: '/login',
+      name: 'login',
       component: Login
     },
   ],

@@ -1,23 +1,34 @@
 import { initializeApp } from "firebase/app";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
 import { ref } from "vue";
 
 const firebaseConfig = {
-  apiKey: "API_KEY",
-  authDomain: "your-app.firebaseapp.com",
-  projectId: "your-app-id",
-  storageBucket: "your-app.appspot.com",
-  messagingSenderId: "your-sender-id",
-  appId: "your-app-id"
+  apiKey: "AIzaSyCt-deJVmDsVjcpqEeTsmwuGDKhVFkFREM",
+  authDomain: "vue-job-finder.firebaseapp.com",
+  projectId: "vue-job-finder",
+  storageBucket: "vue-job-finder.firebasestorage.app",
+  messagingSenderId: "589648708727",
+  appId: "1:589648708727:web:188693d72947ee89373272",
+  measurementId: "G-1KNMR19357"
 };
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-
-// 📌 Monitorojmë ndryshimet në login
 const user = ref(null);
-onAuthStateChanged(auth, (currentUser) => {
+
+onAuthStateChanged(auth, async (currentUser) => {
   user.value = currentUser;
+
+  if (!currentUser) {
+    console.log("🔄 Përdoruesi është çkyçur, po pastroj punët e ruajtura...");
+
+    // 📌 Importo store-in vetëm kur përdoruesi del
+    const { useJobStore } = await import("@/stores/jobStore");
+    const jobStore = useJobStore();
+
+    jobStore.savedJobs = [];
+    localStorage.removeItem("savedJobs");
+  }
 });
 
-export { auth, user };
+export { auth, user, signOut };
