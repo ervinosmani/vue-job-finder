@@ -1,0 +1,30 @@
+{
+    "jobs": [
+      {
+        "id": 1,
+        "title": "Frontend Developer",
+        "company": "Tech Corp",
+        "salary": "60000€",
+        "location": "Remote",
+        "description": "Join our team as a Frontend Developer to build modern web applications.",
+        "applyLink": "https://www.linkedin.com/jobs/view/1"
+      },
+      {
+        "id": 2,
+        "title": "Backend Developer",
+        "company": "Code Inc",
+        "salary": "75000€",
+        "location": "On-site",
+        "description": "We are looking for a Backend Developer to work with scalable APIs and databases.",
+        "applyLink": "https://www.linkedin.com/jobs/view/2"
+      }
+    ],
+    "users": [
+      {
+        "id": 1,
+        "email": "test@example.com",
+        "password": "123456"
+      }
+    ]
+  }
+  
