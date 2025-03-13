@@ -170,5 +170,20 @@ watch([searchQuery, selectedSalaryRange, selectedJobType], () => {
         </div>
       </div>
     </div>
+
+    <!-- 📌 Pagination -->
+<div v-if="totalPages > 1" class="mt-6 flex justify-center space-x-4">
+  <button @click="prevPage" :disabled="currentPage === 1"
+    class="px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 disabled:bg-gray-500">
+    ← Previous
+  </button>
+
+  <span class="text-gray-300 text-lg"> Page {{ currentPage }} of {{ totalPages }} </span>
+
+  <button @click="nextPage" :disabled="currentPage === totalPages"
+    class="px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 disabled:bg-gray-500">
+    Next →
+  </button>
+</div>
   </div>
 </template>

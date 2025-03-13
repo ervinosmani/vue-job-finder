@@ -14,7 +14,7 @@ export const useJobStore = defineStore('jobStore', () => {
   const fetchJobs = async () => {
     loading.value = true;
     try {
-      const response = await axios.get('http://localhost:3000/jobs'); // ✅ Merr punët nga JSON Server
+      const response = await axios.get("https://vue-job-api-vb9n.onrender.com/jobs");
       jobs.value = response.data; // ✅ Ruaj të gjitha fushat pa i ndryshuar
     } catch (err) {
       error.value = 'Gabim gjatë marrjes së punëve';

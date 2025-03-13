@@ -20,7 +20,7 @@ onMounted(async () => {
   // **Nëse punët nuk janë ngarkuar ende, bëjmë një kërkesë tek backend**
   if (!job.value) {
     try {
-      const response = await axios.get(`http://localhost:3000/jobs/${jobId}`);
+      const response = await axios.get(`https://vue-job-api-vb9n.onrender.com/jobs/${jobId}`);
       job.value = response.data;
     } catch (err) {
       console.error("Job not found:", err);
@@ -60,7 +60,7 @@ const goBack = () => {
 <template>
   <div v-if="job" class="container mx-auto p-6 text-center">
     <h1 class="text-4xl font-bold text-gray-200 mb-4">{{ job.title }}</h1>
-    <p class="text-gray-400 mb-4">{{ job.body }}</p>
+    <p class="text-gray-400 mb-4">{{ job.description }}</p>
 
     <p class="text-gray-400"><strong>Company:</strong> {{ job.company }}</p>
     <p class="text-gray-400"><strong>Location:</strong> {{ job.location }}</p>
