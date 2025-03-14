@@ -1,16 +1,17 @@
 import { defineStore } from 'pinia';
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, watchEffect } from 'vue';
 import axios from 'axios';
+import { user } from '@/firebase'; // ✅ Kontrollojmë nëse user-i është kyçur
 
 export const useJobStore = defineStore('jobStore', () => {
   const jobs = ref<any[]>([]); // Punët nga backend
-  const savedJobs = ref<any[]>(JSON.parse(localStorage.getItem('savedJobs') || '[]')); // Punët e ruajtura lokalisht
+  const savedJobs = ref<any[]>([]); // ✅ Inicializim i saktë pa `localStorage`
   const searchQuery = ref(''); // ✅ Kërkimi i punëve
 
   const loading = ref(false);
   const error = ref<string | null>(null);
 
-  // 📌 Merr punët nga JSON Server në vend të JSONPlaceholder
+  // 📌 Merr punët nga backend
   const fetchJobs = async () => {
     loading.value = true;
     try {
@@ -22,10 +23,15 @@ export const useJobStore = defineStore('jobStore', () => {
     } finally {
       loading.value = false;
     }
-  };  
+  };
 
-  // 📌 Ruaj një punë në localStorage
+  // 📌 Ruaj një punë në të preferuarat, vetëm nëse user-i është i kyçur
   const saveJob = (job: any) => {
+    if (!user.value) {
+      console.warn("❌ Nuk mund të ruani punë pa u kyçur!");
+      return;
+    }
+
     if (!savedJobs.value.find((j) => j.id === job.id)) {
       savedJobs.value.push(job);
       localStorage.setItem('savedJobs', JSON.stringify(savedJobs.value));
@@ -38,6 +44,12 @@ export const useJobStore = defineStore('jobStore', () => {
     localStorage.setItem('savedJobs', JSON.stringify(savedJobs.value));
   };
 
+  // 📌 Pastrimi i punëve të ruajtura kur user-i del
+  const clearSavedJobs = () => {
+    savedJobs.value = [];
+    localStorage.removeItem("savedJobs");
+  };
+
   // 📌 Filtrim i punëve sipas titullit ose vendndodhjes
   const filteredJobs = computed(() => {
     return jobs.value.filter(job =>
@@ -46,10 +58,16 @@ export const useJobStore = defineStore('jobStore', () => {
     );
   });
 
-  // 📌 Ruaj punët e preferuara në localStorage
-  watch(savedJobs, (newJobs) => {
-    localStorage.setItem('savedJobs', JSON.stringify(newJobs));
-  }, { deep: true });
+  // ✅ Përdor `watchEffect` për të menaxhuar `savedJobs`
+  watchEffect(() => {
+    if (user.value) {
+      // ✅ Merr punët e ruajtura nga localStorage kur user-i kyçet
+      savedJobs.value = JSON.parse(localStorage.getItem("savedJobs") || "[]");
+    } else {
+      // ❌ Pastron punët e ruajtura kur user-i del
+      clearSavedJobs();
+    }
+  });
 
   return { 
     jobs, 
@@ -60,6 +78,7 @@ export const useJobStore = defineStore('jobStore', () => {
     fetchJobs, 
     saveJob, 
     removeJob, 
-    filteredJobs 
+    filteredJobs,
+    clearSavedJobs // ✅ Funksioni për fshirjen e punëve të ruajtura
   };
 });

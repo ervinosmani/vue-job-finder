@@ -55,8 +55,11 @@ watch(() => jobStore.savedJobs.length, (newLength) => {
 
         <h2 class="text-xl font-bold">{{ job.title }}</h2>
         <p class="text-gray-400"><strong>Company:</strong> {{ job.company }}</p>
-        <p class="text-gray-400"><strong>Location:</strong> {{ job.location }}</p>
         <p class="text-gray-400"><strong>Salary:</strong> {{ job.salary }}</p>
+        <p class="text-gray-400"><strong>Location:</strong> {{ job.location }}</p>
+        <p class="text-gray-400"><strong>Industry:</strong> {{ job.industry }}</p>
+        <p class="text-gray-400"><strong>Experience Level:</strong> {{ job.experience }}</p>
+
 
         <!-- 📌 Përshkrimi i punës -->
         <p class="text-gray-300 mt-2">

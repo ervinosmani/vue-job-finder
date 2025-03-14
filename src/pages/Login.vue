@@ -1,51 +1,47 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
-import { auth } from '@/firebase';
+import { ref, watch } from 'vue';
+import { auth, user } from '@/firebase';
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from 'firebase/auth';
-import { useRouter, useRoute } from 'vue-router';
+import { useRouter } from 'vue-router';
 
 const router = useRouter();
-const route = useRoute();
-
-// ✅ Variablat për inputet
 const email = ref('');
 const password = ref('');
 const confirmPassword = ref('');
 const isLogin = ref(true);
-
-// ✅ Variablat për mesazhet
 const errorMessage = ref('');
 const successMessage = ref('');
 
-// ✅ Kontrollon nëse ka një mesazh suksesi pas ridrejtimit
-onMounted(() => {
-  if (route.query.success) {
-    successMessage.value = String(route.query.success);
-    setTimeout(() => {
-      successMessage.value = '';
-      router.replace({ query: {} });
-    }, 3000);
+// ✅ Watch për ndryshimin e user-it dhe ridrejtim të sigurt
+watch(user, (newUser) => {
+  if (newUser) {
+    console.log("✅ User u kyç, ridrejto në faqen e mëparshme...");
+    const redirectPath = sessionStorage.getItem("redirectAfterLogin") || "/jobs";
+    sessionStorage.removeItem("redirectAfterLogin");
+    router.replace(redirectPath);
   }
 });
 
 // ✅ Funksioni i autentifikimit
 const handleAuth = async () => {
   errorMessage.value = '';
-  successMessage.value = '';
+  successMessage.value = ''; 
 
   try {
     if (isLogin.value) {
       await signInWithEmailAndPassword(auth, email.value, password.value);
-      router.push('/jobs');
+      successMessage.value = "✅ Login successful! Redirecting...";
     } else {
       if (password.value !== confirmPassword.value) {
-        errorMessage.value = 'Passwords do not match!';
+        errorMessage.value = '❌ Passwords do not match!';
         return;
       }
-
       await createUserWithEmailAndPassword(auth, email.value, password.value);
+      successMessage.value = "✅ Account created successfully! Redirecting to login...";
       await signOut(auth);
-      window.location.href = '/login';
+      setTimeout(() => {
+        router.replace('/login');
+      }, 500);
     }
   } catch (error: any) {
     errorMessage.value = error.message;
@@ -60,8 +56,12 @@ const handleAuth = async () => {
     </h1>
 
     <!-- ✅ Mesazhet -->
-    <p v-if="successMessage" class="text-green-500 bg-green-900 p-2 rounded mb-4">{{ successMessage }}</p>
-    <p v-if="errorMessage" class="text-red-500 bg-red-900 p-2 rounded mb-4">{{ errorMessage }}</p>
+    <p v-if="successMessage" class="text-green-500 bg-green-900 p-2 rounded mb-4">
+      {{ successMessage }}
+    </p>
+    <p v-if="errorMessage" class="text-red-500 bg-red-900 p-2 rounded mb-4">
+      {{ errorMessage }}
+    </p>
 
     <form @submit.prevent="handleAuth" class="max-w-md mx-auto bg-gray-800 p-6 rounded-lg shadow-lg">
       <input v-model="email" type="email" placeholder="Email"
