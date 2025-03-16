@@ -1,8 +1,14 @@
-import { initializeApp } from "firebase/app";
-import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
-import type { User } from "firebase/auth";
 import { ref, watchEffect } from "vue";
-import { useJobStore } from "@/stores/jobStore"; // ✅ Importo jobStore për të pastruar punët e ruajtura
+import { initializeApp } from "firebase/app";
+import { 
+  getAuth, 
+  onAuthStateChanged, 
+  signOut, 
+  setPersistence, 
+  browserSessionPersistence 
+} from "firebase/auth";
+import type { User } from "firebase/auth";
+import { useJobStore } from "@/stores/jobStore";
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -18,19 +24,25 @@ const auth = getAuth(app);
 const user = ref<User | null>(null);
 const authLoaded = ref(false);
 
+// ✅ Përdorim `browserSessionPersistence` për të mbajtur user-in vetëm gjatë sesionit
+setPersistence(auth, browserSessionPersistence).catch((error) => {
+  console.error("❌ Gabim gjatë vendosjes së persistence:", error);
+});
+
+// 🔥 Event listener për ndryshimin e autentifikimit
 onAuthStateChanged(auth, async (currentUser) => {
   console.log("🔥 Auth State Changed:", currentUser);
-  
-  const jobStore = useJobStore(); // ✅ Merr jobStore për të pastruar punët e ruajtura
+
+  const jobStore = useJobStore();
 
   if (currentUser) {
     user.value = currentUser;
-    localStorage.setItem("user", JSON.stringify(currentUser));
+    sessionStorage.setItem("user", JSON.stringify(currentUser));
   } else {
     user.value = null;
-    localStorage.removeItem("user");
+    sessionStorage.removeItem("user");
 
-    // ✅ PASTRO punët e ruajtura kur user del!
+    // ✅ Pastron punët e ruajtura kur user del
     jobStore.savedJobs = [];
     localStorage.removeItem("savedJobs");
   }
@@ -38,17 +50,10 @@ onAuthStateChanged(auth, async (currentUser) => {
   authLoaded.value = true;
 });
 
-// ✅ Kontrollojmë ndryshimin e user-it dhe ridrejtojmë në login nëse user-i del
-watchEffect(() => {
-  if (!user.value) {
-    const redirectPath = sessionStorage.getItem("redirectAfterLogin");
-    if (redirectPath) {
-      sessionStorage.removeItem("redirectAfterLogin");
-      setTimeout(() => {
-        window.location.href = redirectPath;
-      }, 500);
-    }
-  }
-});
+// ✅ Funksioni i logout që gjithmonë ridrejton në Home
+const handleLogout = async (router: any) => {
+  await signOut(auth);
+  router.replace('/'); // ✅ Ridrejto në Home pas logout
+};
 
-export { auth, user, signOut, authLoaded };
+export { auth, user, signOut, authLoaded, handleLogout };

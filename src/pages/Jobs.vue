@@ -121,18 +121,19 @@ watch([searchQuery, selectedIndustry, selectedExperience, selectedJobType], () =
 </script>
 
 <template>
-  <div class="container mx-auto p-6 text-center">
+  <div class="w-full px-4 sm:px-6 py-6 text-center">
     <h1 class="text-4xl font-bold text-gray-200 mb-6">Job Listings</h1>
 
     <!-- 📌 Filtrat -->
-    <div class="flex flex-wrap space-x-4 mb-4 justify-center">
-      <input v-model="searchQuery" type="text" placeholder="Search jobs..."
-        class="p-2 rounded border bg-gray-800 text-white" />
-      <button @click="clearSearch" class="ml-2 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition">
-        Clear
-      </button>
-
-      <select v-model="selectedIndustry" class="p-2 rounded border bg-gray-800 text-white">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+      <input 
+        v-model="searchQuery" 
+        type="text" 
+        placeholder="Search jobs..."
+        class="p-3 rounded border bg-gray-800 text-white w-full"
+      />
+      
+      <select v-model="selectedIndustry" class="p-3 rounded border bg-gray-800 text-white w-full">
         <option value="">All Industries</option>
         <option value="IT">IT</option>
         <option value="Finance">Finance</option>
@@ -140,46 +141,55 @@ watch([searchQuery, selectedIndustry, selectedExperience, selectedJobType], () =
         <option value="Design">Design</option>
       </select>
 
-      <select v-model="selectedExperience" class="p-2 rounded border bg-gray-800 text-white">
+      <select v-model="selectedExperience" class="p-3 rounded border bg-gray-800 text-white w-full">
         <option value="">All Experience Levels</option>
         <option value="Junior">Junior</option>
         <option value="Mid-Level">Mid-Level</option>
         <option value="Senior">Senior</option>
       </select>
 
-      <select v-model="selectedJobType" class="p-2 rounded border bg-gray-800 text-white">
+      <select v-model="selectedJobType" class="p-3 rounded border bg-gray-800 text-white w-full">
         <option value="">All Types</option>
         <option value="Remote">Remote</option>
         <option value="On-site">On-site</option>
       </select>
+
+      <button 
+        @click="clearSearch" 
+        class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition w-full md:w-auto">
+        Clear
+      </button>
     </div>
 
     <!-- 📌 Lista e punëve -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <div v-for="job in paginatedJobs" :key="job.id"
-        class="bg-gray-800 p-6 rounded-lg shadow-lg text-left h-full flex flex-col justify-between min-h-[350px] border">
-        <h2 class="text-xl font-bold">{{ job.title }}</h2>
+    <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div 
+        v-for="job in paginatedJobs" 
+        :key="job.id"
+        class="bg-gray-800 p-6 md:p-8 rounded-lg shadow-lg text-left flex flex-col justify-between border w-full min-h-[500px] sm:min-h-[550px]"
+      >
+        <h2 class="text-2xl font-bold">{{ job.title }}</h2>
         <p class="text-gray-400"><strong>Company:</strong> {{ job.company }}</p>
         <p class="text-gray-400"><strong>Industry:</strong> {{ job.industry }}</p>
         <p class="text-gray-400"><strong>Experience Level:</strong> {{ job.experience }}</p>
         <p class="text-gray-400"><strong>Location:</strong> {{ job.location }}</p>
         <p class="text-gray-400">{{ shortDescription(job.description) }}</p>
 
-        <div class="mt-4 flex justify-between space-x-2">
+        <div class="mt-6 flex flex-col sm:flex-row justify-between space-y-3 sm:space-y-0 sm:space-x-3">
           <button 
             @click="handleSave(job)" 
             :class="{
               'bg-gray-500 cursor-not-allowed': isSaved(job.id) && user,
               'bg-green-500 hover:bg-green-600': !isSaved(job.id) || !user
             }"
-            class="px-4 py-2 text-white rounded-lg w-full transition"
+            class="px-5 py-3 text-white rounded-lg w-full transition text-lg font-medium"
             :disabled="isSaved(job.id) && user"
           >
             {{ isSaved(job.id) ? 'Saved' : 'Save Job' }}
           </button>
 
           <router-link :to="`/jobs/${job.id}`" class="w-full">
-            <button class="px-4 py-2 bg-blue-500 text-white rounded-lg w-full">
+            <button class="px-5 py-3 bg-blue-500 text-white rounded-lg w-full text-lg font-medium">
               View Details
             </button>
           </router-link>
@@ -206,16 +216,20 @@ watch([searchQuery, selectedIndustry, selectedExperience, selectedJobType], () =
       No jobs found.
     </div>
 
-    <!-- 📌 Pagination -->
-    <div v-if="totalPages > 1" class="mt-6 flex justify-center space-x-4">
-      <button @click="prevPage" :disabled="currentPage === 1"
+     <!-- 📌 Pagination -->
+     <div v-if="totalPages > 1" class="mt-6 flex justify-center space-x-4">
+      <button 
+        @click="prevPage" 
+        :disabled="currentPage === 1"
         class="px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 disabled:bg-gray-500">
         ← Previous
       </button>
 
       <span class="text-gray-300 text-lg"> Page {{ currentPage }} of {{ totalPages }} </span>
 
-      <button @click="nextPage" :disabled="currentPage === totalPages"
+      <button 
+        @click="nextPage" 
+        :disabled="currentPage === totalPages"
         class="px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 disabled:bg-gray-500">
         Next →
       </button>
