@@ -15,4 +15,7 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url))
     },
   },
+  build: {
+    outDir: 'dist', // ✅ Netlify kërkon që build output të jetë në 'dist'
+  },
 })

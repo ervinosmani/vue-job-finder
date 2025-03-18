@@ -189,7 +189,8 @@ watch([searchQuery, selectedIndustry, selectedExperience, selectedJobType], () =
               'bg-green-500 hover:bg-green-600': !isSaved(job.id) || !user
             }"
             class="px-4 py-2 text-white rounded-lg w-full transition"
-            :disabled="isSaved(job.id) && user"
+            :disabled="isSaved(job.id) && !!user"
+
           >
             {{ isSaved(job.id) ? 'Saved' : 'Save Job' }}
           </button>
