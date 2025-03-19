@@ -1,5 +1,10 @@
 <script setup lang="ts">
 import Navbar from './components/Navbar.vue';
+import { onMounted } from 'vue';
+
+onMounted(() => {
+  document.documentElement.classList.add('dark'); 
+});
 </script>
 
 <template>
