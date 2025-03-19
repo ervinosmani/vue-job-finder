@@ -35,7 +35,6 @@ const goToJobs = () => {
 
 
 <style scoped>
-/* Për animime të buta */
 button:hover {
   transform: scale(1.05);
 }

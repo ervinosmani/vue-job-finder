@@ -13,22 +13,22 @@ const handleScroll = () => {
   hasScrolled.value = window.scrollY > 50;
 };
 
-// ✅ Logout me konfirmim
+// Logout me konfirmim
 const handleLogout = async () => {
-  const confirmLogout = window.confirm("Are you sure you want to log out?"); // ✅ Pyet përdoruesin para logout
+  const confirmLogout = window.confirm("Are you sure you want to log out?"); // Pyet perdoruesin para logout
   if (confirmLogout) {
     await signOut(auth);
-    isOpen.value = false; // ✅ Mbyll hamburger menu pas logout
-    router.push('/'); // ✅ Ridrejto në Home
+    isOpen.value = false; // Mbyll hamburger menu pas logout
+    router.push('/'); // Ridrejto ne Home
   }
 };
 
-// ✅ Mbyll hamburger menu kur klikon një opsion
+// Mbyll hamburger menu kur klikon nje opsion
 const closeMenu = () => {
   isOpen.value = false;
 };
 
-// ✅ Kontrollon nëse jemi në një faqe të caktuar për ta stilizuar si aktive
+// Kontrollon nese jemi ne nje faqe te caktuar per ta stilizuar si aktive
 const isActive = (path: string) => {
   return route.path === path
     ? 'bg-blue-700 text-white font-bold rounded-md shadow-md px-4 py-2 transition-all duration-200'
@@ -51,12 +51,12 @@ onUnmounted(() => {
     <div class="container mx-auto flex justify-between items-center px-6 py-4">
       <router-link to="/" class="text-2xl font-bold text-white">Vue Job Finder</router-link>
 
-      <!-- ✅ Hamburger menu button (për mobile) -->
+      <!-- Hamburger menu button (per mobile) -->
       <button @click="isOpen = !isOpen" class="md:hidden text-white text-3xl focus:outline-none">
         ☰
       </button>
 
-      <!-- ✅ Menu për desktop dhe mobile -->
+      <!-- Menu per desktop dhe mobile -->
       <ul
         :class="['md:flex md:space-x-4 transition-all duration-300',
                   isOpen ? 'block space-y-4' : 'hidden']" 
@@ -66,7 +66,7 @@ onUnmounted(() => {
         <li><router-link to="/jobs" :class="isActive('/jobs')" @click="closeMenu">Jobs</router-link></li>
         <li><router-link to="/saved-jobs" :class="isActive('/saved-jobs')" @click="closeMenu">Saved Jobs</router-link></li>
 
-        <!-- ✅ Login dhe Logout buttons me përmasa të njëjta -->
+        <!-- Login dhe Logout buttons me permasa te njejta -->
         <li v-if="!user">
           <router-link to="/login" 
             class="block p-2 px-4 bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 transition rounded-lg text-white mx-auto w-28 text-center shadow-lg"
@@ -90,12 +90,12 @@ onUnmounted(() => {
 
 
 <style scoped>
-/* ✅ Sigurohemi që navbar-i të mos mbulojë përmbajtjen */
+/* Sigurohemi qe navbar-i te mos mbuloje permbajtjen */
 body {
   padding-top: 4rem;
 }
 
-/* ✅ Rregullojmë distancën dhe qendrimin e opsioneve në mobile */
+/* Rregullojme distancen dhe qendrimin e opsioneve ne mobile */
 @media (max-width: 768px) {
   ul {
     text-align: center;

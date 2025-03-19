@@ -24,14 +24,14 @@ const auth = getAuth(app);
 const user = ref<User | null>(null);
 const authLoaded = ref(false);
 
-// ✅ Përdorim `browserSessionPersistence` për të mbajtur user-in vetëm gjatë sesionit
+// Perdorim `browserSessionPersistence` per te mbajtur user-in vetem gjate sesionit
 setPersistence(auth, browserSessionPersistence).catch((error) => {
-  console.error("❌ Gabim gjatë vendosjes së persistence:", error);
+  //console.error("Gabim gjate vendosjes se persistence:", error);
 });
 
-// 🔥 Event listener për ndryshimin e autentifikimit
+// Event listener per ndryshimin e autentifikimit
 onAuthStateChanged(auth, async (currentUser) => {
-  console.log("🔥 Auth State Changed:", currentUser);
+  //console.log("Auth State Changed:", currentUser);
 
   const jobStore = useJobStore();
 
@@ -42,7 +42,7 @@ onAuthStateChanged(auth, async (currentUser) => {
     user.value = null;
     sessionStorage.removeItem("user");
 
-    // ✅ Pastron punët e ruajtura kur user del
+    // Pastron punet e ruajtura kur user del
     jobStore.savedJobs = [];
     localStorage.removeItem("savedJobs");
   }
@@ -50,10 +50,10 @@ onAuthStateChanged(auth, async (currentUser) => {
   authLoaded.value = true;
 });
 
-// ✅ Funksioni i logout që gjithmonë ridrejton në Home
+// Funksioni i logout qe gjithmone ridrejton ne Home
 const handleLogout = async (router: any) => {
   await signOut(auth);
-  router.replace('/'); // ✅ Ridrejto në Home pas logout
+  router.replace('/'); // Ridrejto ne Home pas logout
 };
 
 export { auth, user, signOut, authLoaded, handleLogout };

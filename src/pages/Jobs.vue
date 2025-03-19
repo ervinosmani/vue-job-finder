@@ -38,7 +38,7 @@ const clearSearch = () => {
   selectedJobType.value = '';
 };
 
-// 📌 Filtrim i punëve sipas industry, experience dhe job type
+// Filtrim i puneve sipas industry, experience dhe job type
 const filteredJobs = computed(() => {
   return jobStore.jobs.filter(job => {
     const matchesSearch = job.title.toLowerCase().includes(searchQuery.value.toLowerCase());
@@ -50,7 +50,7 @@ const filteredJobs = computed(() => {
   });
 });
 
-// 📌 Pagination
+// Pagination
 const paginatedJobs = computed(() => {
   const start = (currentPage.value - 1) * jobsPerPage;
   const end = start + jobsPerPage;
@@ -77,17 +77,17 @@ const scrollToTop = () => {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 };
 
-// 📌 FUNKSIONI: Ruaj punën në të preferuarat
+// FUNKSIONI: Ruaj punen ne te preferuarat
 const handleSave = async (job: any) => {
-  console.log("🛠 Kontrollojmë user për Save Job:", user.value);
+  //console.log("Kontrollojme user per Save Job:", user.value);
 
   if (!authLoaded.value) {
-    console.log("⏳ Duke pritur Firebase...");
+    //console.log("Duke pritur Firebase...");
     return;
   }
 
   if (!user.value) { 
-    console.log("🔒 User nuk është i kyçur, ridrejto në login...");
+    //console.log("User nuk EshtE i kyçur, ridrejto nE login...");
     
     sessionStorage.setItem("redirectAfterLogin", router.currentRoute.value.fullPath);
 
@@ -101,10 +101,10 @@ const handleSave = async (job: any) => {
 };
 
 
-// ✅ Përdor watch për të siguruar që Vue reagon kur user ndryshon
+// Perdor watch per te siguruar qe Vue reagon kur user ndryshon
 watch(user, (newUser) => {
   if (newUser) {
-    console.log("✅ User u kyç, kontrollo ridrejtimin...");
+    //console.log("User u kyc, kontrollo ridrejtimin...");
     const redirectPath = sessionStorage.getItem("redirectAfterLogin");
     if (redirectPath) {
       sessionStorage.removeItem("redirectAfterLogin");
@@ -127,7 +127,7 @@ watch([searchQuery, selectedIndustry, selectedExperience, selectedJobType], () =
   <div class="container mx-auto p-0 my-2 sm:p-6 text-center">
     <h1 class="text-4xl font-bold text-gray-200 mb-6">Job Listings</h1>
 
-    <!-- 📌 Filtrat - Organizuar më mirë për desktop -->
+    <!-- Filtrat - Organizuar me mire per desktop -->
     <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-4 items-center">
       <input
         v-model="searchQuery"
@@ -137,26 +137,26 @@ watch([searchQuery, selectedIndustry, selectedExperience, selectedJobType], () =
       />
       
       <!-- Dropdown Lists -->
-<select v-model="selectedIndustry" class="p-2 rounded border bg-gray-800 text-white w-full appearance-none">
-  <option value="">All Industries</option>
-  <option value="IT">IT</option>
-  <option value="Finance">Finance</option>
-  <option value="Marketing">Marketing</option>
-  <option value="Design">Design</option>
-</select>
+      <select v-model="selectedIndustry" class="p-2 rounded border bg-gray-800 text-white w-full appearance-none">
+        <option value="">All Industries</option>
+        <option value="IT">IT</option>
+        <option value="Finance">Finance</option>
+        <option value="Marketing">Marketing</option>
+        <option value="Design">Design</option>
+      </select>
 
-<select v-model="selectedExperience" class="p-2 rounded border bg-gray-800 text-white w-full appearance-none">
-  <option value="">All Experience Levels</option>
-  <option value="Junior">Junior</option>
-  <option value="Mid-Level">Mid-Level</option>
-  <option value="Senior">Senior</option>
-</select>
+      <select v-model="selectedExperience" class="p-2 rounded border bg-gray-800 text-white w-full appearance-none">
+        <option value="">All Experience Levels</option>
+        <option value="Junior">Junior</option>
+        <option value="Mid-Level">Mid-Level</option>
+        <option value="Senior">Senior</option>
+      </select>
 
-<select v-model="selectedJobType" class="p-2 rounded border bg-gray-800 text-white w-full appearance-none">
-  <option value="">All Types</option>
-  <option value="Remote">Remote</option>
-  <option value="On-site">On-site</option>
-</select>
+      <select v-model="selectedJobType" class="p-2 rounded border bg-gray-800 text-white w-full appearance-none">
+        <option value="">All Types</option>
+        <option value="Remote">Remote</option>
+        <option value="On-site">On-site</option>
+      </select>
 
 
       <button
@@ -167,7 +167,7 @@ watch([searchQuery, selectedIndustry, selectedExperience, selectedJobType], () =
       </button>
     </div>
 
-    <!-- 📌 Lista e punëve -->
+    <!-- Lista e puneve -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-7">
       <div
         v-for="job in paginatedJobs"
@@ -204,7 +204,7 @@ watch([searchQuery, selectedIndustry, selectedExperience, selectedJobType], () =
       </div>
     </div>
 
-    <!-- 📌 Loading -->
+    <!-- Loading -->
     <div v-if="jobStore.loading" class="flex justify-center">
       <svg
         class="animate-spin h-10 w-10 text-blue-400"
@@ -217,12 +217,12 @@ watch([searchQuery, selectedIndustry, selectedExperience, selectedJobType], () =
       </svg>
     </div>
 
-    <!-- 📌 Error Message -->
+    <!-- Error Message -->
     <div v-else-if="jobStore.error" class="text-red-400">
       {{ jobStore.error }}
     </div>
 
-    <!-- 📌 No Jobs Found -->
+    <!-- No Jobs Found -->
     <div v-else-if="filteredJobs.length === 0" class="text-gray-400">
       No jobs found.
     </div>
@@ -251,43 +251,43 @@ watch([searchQuery, selectedIndustry, selectedExperience, selectedJobType], () =
 </template> 
 
 <style scoped>
-/* ✅ RREGULLIMI I DROPDOWN-IT VETËM PËR EKRANE TË VOGLA */
+/* Rregullimi i dropdown-it vetem per ekrane te vogla */
 @media (max-width: 768px) {
   select {
-    width: 100% !important;    /* ✅ Dropdown-i të jetë i njëjtë me input-in */
-    max-width: 100% !important; /* ✅ Kufizon që të mos jetë më i madh */
-    appearance: none !important; /* ✅ Hiq stilin e shfletuesit */
-    box-sizing: border-box !important; /* ✅ Siguron që padding & border të mos ndikojnë */
-    font-size: 14px !important; /* ✅ Teksti të jetë i njëjtë me input-et */
-    padding: 10px !important;   /* ✅ Jep hapësirë të barabartë për tekstin */
-    border: 1px solid #ccc !important; /* ✅ Jep një stil të pastër */
-    background-color: #1f2937 !important; /* ✅ Ngjyrë uniforme */
-    color: white !important; /* ✅ Teksti me ngjyrë të bardhë */
-    border-radius: 5px !important; /* ✅ Cepa të rrumbullakosur */
+    width: 100% !important;    
+    max-width: 100% !important; 
+    appearance: none !important; 
+    box-sizing: border-box !important;
+    font-size: 14px !important; 
+    padding: 10px !important;   
+    border: 1px solid #ccc !important; 
+    background-color: #1f2937 !important; 
+    color: white !important; 
+    border-radius: 5px !important; 
   }
 
-  /* ✅ PËR OPSIONET E DROPDOWN-IT */
+  /* Per opsionet e dropdown-it */
   select option {
-    font-size: 14px !important; /* ✅ Teksti i opsioneve i njëjtë me input-et */
-    max-width: 100% !important; /* ✅ Kufizojmë opsionet */
-    text-align: left !important; /* ✅ Sigurojmë që teksti të jetë i rregullt */
-    background-color: #1f2937 !important; /* ✅ Ngjyrë uniforme */
-    color: white !important; /* ✅ Tekst i bardhë */
+    font-size: 14px !important; 
+    max-width: 100% !important; 
+    text-align: left !important; 
+    background-color: #1f2937 !important;
+    color: white !important; 
   }
 
-  /* ✅ PËR TË SIGURUAR QË DROPDOWN-I MOS DEL JASHTË */
+  /* Per te siguruar qe dropdown-i mos te dal jashte */
   select:focus {
-    outline: none !important; /* ✅ Hiq border-in blu të shfletuesit */
-    border-color: #3b82f6 !important; /* ✅ Jep një highlight kur fokusohet */
+    outline: none !important;
+    border-color: #3b82f6 !important; 
   }
 
-  /* ✅ KUFIZIMI I GJERËSISË SË LISTËS SË HAPUR */
+  /* Kufizimi i gjeresise se listes se hapur */
   select::-webkit-scrollbar {
-    width: 5px !important; /* ✅ Bën scrollbar-in më të vogël */
+    width: 5px !important; 
   }
 
   select::-webkit-scrollbar-thumb {
-    background: #3b82f6 !important; /* ✅ Jep një ngjyrë të lehtë scrollbar-it */
+    background: #3b82f6 !important; 
     border-radius: 10px !important;
   }
 }

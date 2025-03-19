@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { ref, watchEffect } from 'vue';
 import { auth, user, authLoaded } from '@/firebase';
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from 'firebase/auth';
 import { useRouter } from 'vue-router';
@@ -12,130 +12,119 @@ const isLogin = ref(true);
 const errorMessage = ref('');
 const successMessage = ref('');
 const isLoading = ref(false);
-const isNewUser = ref(false); // 🚀 Flag për të shmangur ridrejtimin e shpejtë
+const isNewUser = ref(false); // Flag per te shmangur ridrejtimin e shpejte
 
-// ✅ Monitorojmë user-in për të shmangur ridrejtimin e dyfishtë pas `Sign Up`
-watch(user, (newUser) => {
-  if (newUser && !isNewUser.value && authLoaded.value) {
-    console.log("✅ User u kyç, ridrejto në faqen e mëparshme...");
-    const redirectPath = sessionStorage.getItem("redirectAfterLogin") || "/jobs";
-    sessionStorage.removeItem("redirectAfterLogin");
-
-    setTimeout(() => {
-      router.replace(redirectPath);
-    }, 500);
+// Monitorimi i gjendjes se perdoruesit per ridrejtim automatik
+watchEffect(() => {
+  if (!user.value && authLoaded.value && isNewUser.value) {
+    console.log("Perdoruesi eshte shkycur, ridrejto te login...");
+    isNewUser.value = false; // Reset flag
+    router.replace('/login'); 
   }
 });
 
-// ✅ Funksioni i autentifikimit
+// Funksioni i autentifikimit
 const handleAuth = async () => {
   errorMessage.value = '';
   successMessage.value = '';
-  isLoading.value = true; // 🟢 Vendosim `loading` në `true` para fillimit të procesit
+  isLoading.value = true;
 
   try {
     if (isLogin.value) {
-      // ✅ LOGIN
-      await signInWithEmailAndPassword(auth, email.value, password.value);
-      successMessage.value = "✅ Login successful! Redirecting..."; 
-
-      const redirectPath = sessionStorage.getItem("redirectAfterLogin") || "/jobs";
-      sessionStorage.removeItem("redirectAfterLogin");
+      // LOGIN
+      const userCredential = await signInWithEmailAndPassword(auth, email.value, password.value);
+      const userEmail = userCredential.user.email;
+      
+      successMessage.value = `Welcome back, ${userEmail}! Redirecting...`;
 
       setTimeout(() => {
-        isLoading.value = false;
-        router.replace(redirectPath);
-      }, 500);
+        router.replace("/jobs");
+      }, 1000);
 
     } else {
-      // ✅ SIGN UP
+      // SIGN UP
       if (password.value !== confirmPassword.value) {
-        errorMessage.value = '❌ Passwords do not match!';
+        errorMessage.value = 'Passwords do not match!';
         isLoading.value = false;
         return;
       }
 
-      isNewUser.value = true; // 🚀 Parandalojmë ridrejtimin e shpejtë pas `Sign Up`
-      console.log("🚀 Krijimi i user-it në Firebase...");
-
+      console.log("Creating user in Firebase...");
       await createUserWithEmailAndPassword(auth, email.value, password.value);
-      successMessage.value = "✅ Account created successfully! Redirecting to login...";
+      
+      successMessage.value = "Account successfully created! Redirecting to login...";
 
-      console.log("🔄 Sign out pas krijimit të user-it...");
+      console.log("Signing out after account creation...");
       await signOut(auth);
 
       setTimeout(() => {
-        isNewUser.value = false;
-        isLoading.value = false;
-        router.replace('/login'); // 🚀 Në vend të `reload`, përdor `router.replace`
+        router.replace('/login');
+        router.go(0); // Reload for correct state update
       }, 1000);
     }
   } catch (error: any) {
-    console.error("❌ Gabim:", error.message);
+    console.error("Error:", error.message);
     errorMessage.value = error.message;
-    isNewUser.value = false;
   } finally {
-    isLoading.value = false; // ✅ Sigurohemi që `isLoading` të ndalojë në fund
+    isLoading.value = false;
   }
 };
 </script>
 
 <template>
-  <div class="container mx-auto p-6 text-center">
-    <h1 class="text-3xl font-bold text-gray-200 mb-6">
-      {{ isLogin ? "Login" : "Sign Up" }}
-    </h1>
+  <div class="h-screen w-screen flex justify-center items-start pt-16 bg-gray-900 px-6 md:px-0 overflow-hidden">
+    <div class="w-full max-w-md bg-gray-800 p-8 rounded-lg shadow-lg">
+      <h1 class="text-3xl font-bold text-white text-center mb-6">
+        {{ isLogin ? "Login" : "Sign Up" }}
+      </h1>
 
-    <!-- ✅ Mesazhet -->
-    <p v-if="successMessage" class="text-green-500 bg-green-900 p-2 rounded mb-4">
-      {{ successMessage }}
-    </p>
-    <p v-if="errorMessage" class="text-red-500 bg-red-900 p-2 rounded mb-4">
-      {{ errorMessage }}
-    </p>
+      <!-- Mesazhi i suksesit -->
+      <p v-if="successMessage" class="bg-green-600 text-white text-center px-4 py-2 rounded-md mb-4 text-sm shadow-md">
+        {{ successMessage }}
+      </p>
 
-    <form @submit.prevent="handleAuth" class="max-w-md mx-auto bg-gray-800 p-6 rounded-lg shadow-lg">
-      <input v-model="email" type="email" placeholder="Email"
-        class="w-full p-2 mb-4 rounded border bg-gray-900 text-white" required />
+      <!-- Mesazhi i gabimit -->
+      <p v-if="errorMessage" class="bg-red-600 text-white text-center px-4 py-2 rounded-md mb-4 text-sm shadow-md">
+        {{ errorMessage }}
+      </p>
 
-      <input v-model="password" type="password" placeholder="Password"
-        class="w-full p-2 mb-4 rounded border bg-gray-900 text-white" required />
+      <form @submit.prevent="handleAuth" class="space-y-4">
+        <input v-model="email" type="email" placeholder="Email"
+          class="w-full p-3 rounded-md border border-gray-600 bg-gray-700 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" required />
 
-      <input v-if="!isLogin" v-model="confirmPassword" type="password" placeholder="Confirm Password"
-        class="w-full p-2 mb-4 rounded border bg-gray-900 text-white" required />
+        <input v-model="password" type="password" placeholder="Password"
+          class="w-full p-3 rounded-md border border-gray-600 bg-gray-700 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" required />
 
-      <!-- ✅ Butoni me animacion Loading -->
-      <button 
-        type="submit" 
-        class="w-full px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition disabled:bg-gray-500 flex justify-center items-center"
-        :disabled="isLoading"
-      >
-        <span v-if="!isLoading">{{ isLogin ? "Login" : "Sign Up" }}</span>
-        <svg v-if="isLoading" class="animate-spin h-5 w-5 text-white ml-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
-        </svg>
-      </button>
+        <input v-if="!isLogin" v-model="confirmPassword" type="password" placeholder="Confirm Password"
+          class="w-full p-3 rounded-md border border-gray-600 bg-gray-700 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" required />
 
-    </form>
+        <!-- Butoni me animacion Loading -->
+        <button 
+          type="submit" 
+          class="w-full px-4 py-3 bg-blue-500 text-white font-semibold rounded-md hover:bg-blue-600 transition disabled:bg-gray-500 flex justify-center items-center"
+          :disabled="isLoading"
+        >
+          <span v-if="!isLoading">{{ isLogin ? "Login" : "Sign Up" }}</span>
+          <svg v-if="isLoading" class="animate-spin h-5 w-5 text-white ml-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+          </svg>
+        </button>
+      </form>
 
-    <p class="text-gray-400 mt-4">
-      {{ isLogin ? "Don't have an account?" : "Already have an account?" }}
-      <button @click="isLogin = !isLogin" class="text-blue-400 underline">
-        {{ isLogin ? "Sign Up" : "Login" }}
-      </button>
-    </p>
+      <p class="text-gray-400 mt-6 text-center text-sm">
+        {{ isLogin ? "Don't have an account?" : "Already have an account?" }}
+        <button @click="isLogin = !isLogin" class="text-blue-400 underline ml-1">
+          {{ isLogin ? "Sign Up" : "Login" }}
+        </button>
+      </p>
+    </div>
   </div>
 </template>
 
 <style scoped>
-/* ✅ Stili për animacionin e spinner-it */
-.animate-spin {
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+/* Heq scroll vetem per `Login.vue` dhe `SignUp.vue`, jo per gjithe aplikacionin */
+.overflow-hidden {
+  overflow: hidden;
 }
 </style>

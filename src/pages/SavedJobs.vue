@@ -6,14 +6,14 @@ import { useJobStore } from '@/stores/jobStore';
 const jobStore = useJobStore();
 const router = useRouter();
 
-// 📌 Funksion për të fshirë një punë me konfirmim
+// Funksion per te fshire nje pune me konfirmim
 const removeJob = (id: number) => {
   if (confirm("Are you sure you want to remove this job?")) {
     jobStore.removeJob(id);
   }
 };
 
-// 📌 Funksion për të fshirë të gjitha punët e ruajtura
+// Funksion per te fshire te gjitha punet e ruajtura
 const removeAllJobs = () => {
   if (confirm("Are you sure you want to remove all saved jobs?")) {
     jobStore.savedJobs = [];
@@ -22,7 +22,7 @@ const removeAllJobs = () => {
   }
 };
 
-// 📌 Monitorojmë listën e punëve të ruajtura dhe ridrejtojmë kur bëhet bosh
+// Monitorojme listen e puneve te ruajtura dhe ridrejtojme kur behet bosh
 watch(() => jobStore.savedJobs.length, (newLength) => {
   if (newLength === 0) {
     router.push('/jobs');
@@ -35,19 +35,19 @@ watch(() => jobStore.savedJobs.length, (newLength) => {
     <h1 class="text-4xl font-bold text-gray-200 mb-6">Saved Jobs</h1>
     <p class="text-gray-400 mb-8">Here are your saved jobs.</p>
 
-    <!-- 📌 Butoni për të fshirë të gjitha punët e ruajtura -->
+    <!-- Butoni per te fshire te gjitha punet e ruajtura -->
     <button v-if="jobStore.savedJobs.length > 0" 
       @click="removeAllJobs"
       class="mb-6 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition shadow-lg">
       Remove All
     </button>
 
-    <!-- 📌 Mesazh nëse nuk ka punë të ruajtura -->
+    <!-- Mesazh nese nuk ka pune te ruajtura -->
     <div v-if="jobStore.savedJobs.length === 0" class="text-gray-400">
       No saved jobs.
     </div>
 
-    <!-- 📌 Lista e punëve të ruajtura -->
+    <!-- Lista e puneve te ruajtura -->
     <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
       <div 
         v-for="job in jobStore.savedJobs" 
@@ -63,12 +63,12 @@ watch(() => jobStore.savedJobs.length, (newLength) => {
           <strong>Salary:</strong> {{ job.salary ?? 'N/A' }}
         </p>
 
-        <!-- 📌 Përshkrimi i punës -->
+        <!-- Pershkrimi i punes -->
         <p class="text-gray-300 mt-2">
           {{ job.description.length > 100 ? job.description.slice(0, 100) + '...' : job.description }}
         </p>
 
-        <!-- 📌 Butonat e kontrollit -->
+        <!-- Butonat e kontrollit -->
         <div class="mt-4 flex flex-col sm:flex-row justify-between space-y-2 sm:space-y-0 sm:space-x-2">
           <button 
             @click="removeJob(job.id)"
