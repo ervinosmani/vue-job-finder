@@ -124,7 +124,7 @@ watch([searchQuery, selectedIndustry, selectedExperience, selectedJobType], () =
 </script>
 
 <template>
-  <div class="container mx-auto p-6 text-center">
+  <div class="container mx-auto p-0 my-2 sm:p-6 text-center">
     <h1 class="text-4xl font-bold text-gray-200 mb-6">Job Listings</h1>
 
     <!-- 📌 Filtrat - Organizuar më mirë për desktop -->
@@ -168,7 +168,7 @@ watch([searchQuery, selectedIndustry, selectedExperience, selectedJobType], () =
     </div>
 
     <!-- 📌 Lista e punëve -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-7">
       <div
         v-for="job in paginatedJobs"
         :key="job.id"
@@ -227,7 +227,7 @@ watch([searchQuery, selectedIndustry, selectedExperience, selectedJobType], () =
     </div>
 
     <!-- Pagination -->
-<div v-if="totalPages > 1" class="mt-6 flex justify-center items-center space-x-4">
+    <div v-if="totalPages > 1" class="mt-6 mb-4 flex justify-center items-center space-x-6">
   <button
     @click="prevPage"
     :disabled="currentPage === 1"
