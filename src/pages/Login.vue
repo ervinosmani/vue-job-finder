@@ -107,10 +107,14 @@ const handleAuth = async () => {
       <!-- ✅ Butoni me animacion Loading -->
       <button 
         type="submit" 
-        class="w-full px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition disabled:bg-gray-500"
+        class="w-full px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition disabled:bg-gray-500 flex justify-center items-center"
         :disabled="isLoading"
       >
-        {{ isLoading ? "" : (isLogin ? "Login" : "Sign Up") }}
+        <span v-if="!isLoading">{{ isLogin ? "Login" : "Sign Up" }}</span>
+        <svg v-if="isLoading" class="animate-spin h-5 w-5 text-white ml-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+        </svg>
       </button>
 
     </form>
@@ -121,13 +125,17 @@ const handleAuth = async () => {
         {{ isLogin ? "Sign Up" : "Login" }}
       </button>
     </p>
-
-    <!-- ✅ Animacioni i `loading` -->
-    <div v-if="isLoading" class="flex justify-center mt-4">
-      <svg class="animate-spin h-6 w-6 text-blue-500" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
-      </svg>
-    </div>
   </div>
 </template>
+
+<style scoped>
+/* ✅ Stili për animacionin e spinner-it */
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+</style>
