@@ -58,8 +58,8 @@ onUnmounted(() => {
 
       <!-- ✅ Menu për desktop dhe mobile -->
       <ul
-        :class="[ 'md:flex md:space-x-4 transition-all duration-300',
-          isOpen ? 'block' : 'hidden']"
+        :class="['md:flex md:space-x-4 transition-all duration-300',
+                  isOpen ? 'block space-y-4' : 'hidden']" 
         class="absolute md:static top-16 left-0 bg-gray-900 w-full md:w-auto md:flex md:items-center text-lg p-4 md:p-0 rounded-lg text-center"
       >
         <li><router-link to="/" :class="isActive('/')" @click="closeMenu">Home</router-link></li>
@@ -83,11 +83,11 @@ onUnmounted(() => {
             Logout
           </button>
         </li>
-
       </ul>
     </div>
   </nav>
 </template>
+
 
 <style scoped>
 /* ✅ Sigurohemi që navbar-i të mos mbulojë përmbajtjen */
